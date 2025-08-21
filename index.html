@@ -11,7 +11,7 @@
       height: 100vh;
       background: linear-gradient(135deg, #8B0000, #FF0000);
       color: white;
-      font-family: 'Playfair Display', serif;
+      font-family: 'none', serif;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -114,7 +114,7 @@
   </div>
 
   <!-- Logo -->
-  <img src="YMC x YFV.png" alt="Logo YMC x YFV" id="logo" />
+  <img src="YMC.png" alt="Logo" id="logo" />
 
   <div id="contenidoPrincipal">
     <h1>Ya! FM Villahermosa</h1>
@@ -126,140 +126,9 @@
       Tu navegador no soporta el servidor de radio 95.7 FM.
     </audio>
 
-    <!-- Mezcla especial -->
-    <audio id="mezcla" src="mezcla.mp3" preload="auto"></audio>
-
-    <!-- Contador regresivo durante mezcla -->
-    <div id="avisoMezcla" class="aviso"></div>
-
-    <div class="info">Transmisión 24/7</div>
+    <div class="info">¡Estamos En Vivo!</div>
   </div>
 
-  <footer>Powered by Ya! FM Villahermosa</footer>
-
-  <script>
-    // Detecta Internet Explorer
-    function esIE() {
-      return /MSIE|Trident/.test(window.navigator.userAgent);
-    }
-
-    if (esIE()) {
-      // Mostrar mensaje incompatibilidad y ocultar contenido
-      document.getElementById('incompatibleMessage').style.display = 'flex';
-      document.getElementById('contenidoPrincipal').style.display = 'none';
-      document.getElementById('logo').style.display = 'none';
-    } else {
-      // Si no es IE, carga todo normalmente
-
-      const DURACION_MEZCLA = 3301 * 1000; // 55 min 1 seg
-      const radio = document.getElementById('radio');
-      const mezcla = document.getElementById('mezcla');
-      const aviso = document.getElementById('avisoMezcla');
-
-      function msATiempo(ms) {
-        const totalSegundos = Math.floor(ms / 1000);
-        const minutos = Math.floor(totalSegundos / 60);
-        const segundos = totalSegundos % 60;
-        return `${minutos.toString().padStart(2,'0')}:${segundos.toString().padStart(2,'0')}`;
-      }
-
-      function iniciarMezcla(offset = 0) {
-        radio.pause();
-        radio.controls = false;
-        radio.style.pointerEvents = "none";
-        radio.style.opacity = "0.5";
-        aviso.style.display = "block";
-
-        mezcla.currentTime = offset;
-        mezcla.play().catch(err => {
-          console.log("Ups, Se desconecto del servidor de radio", err);
-        });
-      }
-
-      let intervaloContador = null;
-      function actualizarContador(inicio) {
-        if (intervaloContador) clearInterval(intervaloContador);
-        intervaloContador = setInterval(() => {
-          const ahora = Date.now();
-          const tiempoPasado = ahora - inicio;
-          const tiempoRestante = DURACION_MEZCLA - tiempoPasado;
-
-          if (tiempoRestante <= 0) {
-            aviso.style.display = "none";
-            aviso.textContent = "";
-            clearInterval(intervaloContador);
-            return;
-          }
-
-          aviso.style.display = "block";
-          aviso.textContent = `Volvemos en: ${msATiempo(tiempoRestante)}`;
-        }, 1000);
-      }
-
-      function prepararReproduccion() {
-        const mezclaInicioGuardado = localStorage.getItem('mezclaInicio');
-        if (mezclaInicioGuardado) {
-          const tiempoPasado = Date.now() - parseInt(mezclaInicioGuardado);
-          if (tiempoPasado < DURACION_MEZCLA) {
-            const offsetSegundos = Math.floor(tiempoPasado / 1000);
-            iniciarMezcla(offsetSegundos);
-            actualizarContador(parseInt(mezclaInicioGuardado));
-            return true;
-          } else {
-            localStorage.removeItem('mezclaInicio');
-          }
-        }
-        radio.play().catch(() => {});
-        return false;
-      }
-
-      let mezclaYaReproducida = false;
-
-      window.addEventListener('load', () => {
-        mezclaYaReproducida = prepararReproduccion();
-      });
-
-      setInterval(() => {
-        const now = new Date();
-        if (now.getHours() === 17 && now.getMinutes() === 43 && !mezclaYaReproducida) {
-          mezclaYaReproducida = true;
-          const inicio = Date.now();
-          localStorage.setItem('mezclaInicio', inicio.toString());
-          iniciarMezcla(0);
-          actualizarContador(inicio);
-        }
-      }, 1000);
-
-      mezcla.addEventListener('ended', () => {
-        console.log("Retomando radio. Espere un momento...");
-        localStorage.removeItem('mezclaInicio');
-
-        radio.play().catch(() => {
-          console.log("No se pudo reanudar la radio, recarga la página o inténtalo más tarde.");
-        });
-
-        radio.controls = true;
-        radio.style.pointerEvents = "auto";
-        radio.style.opacity = "1";
-        aviso.style.display = "none";
-        aviso.textContent = "";
-        mezclaYaReproducida = false;
-      });
-
-      document.body.addEventListener('click', () => {
-        const mezclaInicioGuardado = localStorage.getItem('mezclaInicio');
-        if (mezclaInicioGuardado) {
-          mezcla.play().catch(() => {
-            console.log("No se pudo reproducir mezcla tras click.");
-          });
-        } else {
-          radio.play().catch(() => {
-            console.log("No se pudo reproducir radio tras click.");
-          });
-        }
-      });
-    }
-  </script>
+  <footer><a href="https://yagamerchris.github.io/Windows-Store/YaFmVillahermosa.htm">Descarga nuestra App</a></footer>
 </body>
 </html>
-
